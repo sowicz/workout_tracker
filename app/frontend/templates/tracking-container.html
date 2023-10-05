@@ -1,0 +1,23 @@
+
+<div class="bg-secondary-subtle mx-auto my-5 border rounded-2 py-4" id="body-part-container" style="width: 30%;">
+
+  <div style="width: 40%" class="rounded-4 bg-light mx-auto text-center py-2">
+    <h5 class="text-secondary-emphasis">
+     {{ bodypartSelect }}
+    </h5>    
+  </div>
+  
+  <div class="py-4 mx-auto" style="width: 80%;" id="{{ bodypartSelect }}">
+
+  </div>
+
+  <div style="width: 50%" class="mx-auto my-2 container text-center" >
+    <div class="row gx-5">
+      <div class="col">
+        <h1></h1>
+        <button type="button" class="btn btn-primary my-2 mx-auto" hx-post="/excercise/" hx-target="#{{ bodypartSelect }}" hx-swap="beforeend">add excercise</button>
+      </div>
+    </div>
+  </div>
+
+</div>

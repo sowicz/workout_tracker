@@ -1,0 +1,22 @@
+<div class="input-group mb-3" id="excercise">
+  <span class="input-group-text" id="inputGroup-sizing-default">Excercise:</span>
+  <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+  <button type="button" class="btn btn-danger" id="remove" onclick="del()">X</button>
+  <button type="button" class="btn btn-success" id="remove" onclick="del()">OK</button>
+  <!-- <a href="">{{ num }}</a> -->
+</div>
+
+
+
+{% block script %}
+
+<script>
+    function del() {
+        const btn = document.querySelector("#remove")
+        console.log(btn.parentElement)
+
+        // btn.parentElement.remove()
+    }
+</script>
+  {% endblock %}
+

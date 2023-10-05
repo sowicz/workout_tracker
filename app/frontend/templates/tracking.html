@@ -1,0 +1,35 @@
+
+
+<div id="trackcontainer" class="mx-auto"></div>
+
+<div class="bg-secondary-subtle mx-auto my-5 border rounded-2 py-2" id="body-part-container" style="width: 30%;">
+
+  <div id="bodyPartOption" style="width: 80%" class="input-group mb-3 mx-auto my-3">
+    <label class="input-group-text" for="inputGroupSelect01">Parts:</label>
+    <select class="form-select" id="inputGroupSelect01" name="bodypartSelect">
+      <option selected>Choose...</option>
+      <option value="Chest">Chest</option>
+      <option value="Back">Back</option>
+      <option value="Legs">Legs</option>
+      <option value="Arms">Arms</option>
+      <option value="Shoulders">Shoulders</option>
+      <option value="ABS">ABS</option>
+    </select>
+  </div>
+
+  <div style="width: 50%" class="mx-auto my-2 container text-center">
+    <div class="row gx-5">
+      <div class="col">
+        <button type="button" class="btn btn-dark my-2 mx-auto" 
+          id="addBodyPart"
+          hx-get="/tracking-container/"
+          hx-target="#trackcontainer"
+          hx-swap="beforeend"
+          hx-include="[name=bodypartSelect]"
+
+        >add body part</button>
+      </div>
+
+    </div>
+  </div>
+</div>
