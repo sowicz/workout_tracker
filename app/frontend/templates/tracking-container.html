@@ -11,11 +11,22 @@
 
   </div>
 
-  <div style="width: 50%" class="mx-auto my-2 container text-center" >
+  <div style="width: 86%" class="mx-auto my-2 container text-center" >
     <div class="row gx-5">
       <div class="col">
-        <h1></h1>
-        <button type="button" class="btn btn-primary my-2 mx-auto" hx-post="/excercise/" hx-target="#{{ bodypartSelect }}" hx-swap="beforeend">add excercise</button>
+        <div class="input-group mb-3">
+          <span class="input-group-text" id="basic-addon1">Excercise:</span>
+            <input type="text" class="form-control" name="excerciseName" id="exName" aria-label="Clear input" aria-describedby="basic-addon1">
+            <button class="btn btn-outline-secondary"
+              hx-swap="beforeend"
+              hx-target="#{{ bodypartSelect }}"
+              hx-get="/addexcercise/{{ bodypartSelect }}"
+              hx-include="[name=excerciseName]"
+              type="button"
+              hx-trigger="click"
+              id="button-addon2"
+              >Add</button>
+        </div>
       </div>
     </div>
   </div>

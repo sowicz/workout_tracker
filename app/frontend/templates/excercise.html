@@ -1,9 +1,21 @@
-<div class="input-group mb-3" id="excercise">
-  <span class="input-group-text" id="inputGroup-sizing-default">Excercise:</span>
-  <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
-  <button type="button" class="btn btn-danger" id="remove" onclick="del()">X</button>
-  <button type="button" class="btn btn-success" id="remove" onclick="del()">OK</button>
-  <!-- <a href="">{{ num }}</a> -->
+<div class="mx-auto" id="fullExcercises">
+  <div class="input-group mb-3" id="{{ excerciseName }}">
+    <div class="form-control" id="excerciseContainer" style="background-color: whitesmoke;" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"> {{ excerciseName }} </div>
+    <button type="button" class="btn btn-warning" id="remove" onclick="del('{{ excerciseName }}')">Edit</button>
+    <button type="button" class="btn btn-danger" id="remove" onclick="del('{{ excerciseName }}')">Del</button>
+  </div>
+  <div id="series{{ bodypartSelect }}{{excerciseName}}"></div>
+  <div class="text-center" style="width: 100%;">
+    <div class="btn-group" role="group" id="rangeContainer">
+      <button type="button" class="btn btn-success"
+        id="remove"
+        hx-get="/addseries/{{ bodypartSelect }}/{{ excerciseName }}"
+        hx-swap="beforeend"
+        hx-target="#series{{ bodypartSelect }}{{ excerciseName }}"
+        >+</button>
+
+    </div>
+  </div>
 </div>
 
 
@@ -11,11 +23,11 @@
 {% block script %}
 
 <script>
-    function del() {
-        const btn = document.querySelector("#remove")
-        console.log(btn.parentElement)
+    function del(id) {
+        const btn = document.querySelector(`[id="${id}"]`)
+ 
+        btn.parentElement.remove()
 
-        // btn.parentElement.remove()
     }
 </script>
   {% endblock %}
