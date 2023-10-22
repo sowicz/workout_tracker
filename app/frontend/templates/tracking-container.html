@@ -1,7 +1,7 @@
 
-<div class="bg-secondary-subtle mx-auto my-5 border rounded-2 py-4" id="body-part-container" style="width: 30%;">
+<div class="bg-secondary-subtle mx-auto my-5 border rounded-2 py-4 trackingdatabox" id="body-part-container" >
 
-  <div style="width: 40%" class="rounded-4 bg-light mx-auto text-center py-2">
+  <div style="width: 60%" class="rounded-4 bg-light mx-auto text-center py-2">
     <h5 class="text-secondary-emphasis">
      {{ bodypartSelect }}
     </h5>    
@@ -14,19 +14,24 @@
   <div style="width: 86%" class="mx-auto my-2 container text-center" >
     <div class="row gx-5">
       <div class="col">
-        <div class="input-group mb-3">
-          <span class="input-group-text" id="basic-addon1">Excercise:</span>
-            <input type="text" class="form-control" name="excerciseName" id="exName" aria-label="Clear input" aria-describedby="basic-addon1">
+        <form >
+
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Excercise:</span>
+            <input type="text" class="form-control" name="excerciseName" aria-label="Clear input" aria-describedby="basic-addon1">
             <button class="btn btn-outline-secondary"
-              hx-swap="beforeend"
-              hx-target="#{{ bodypartSelect }}"
-              hx-get="/addexcercise/{{ bodypartSelect }}"
-              hx-include="[name=excerciseName]"
-              type="button"
-              hx-trigger="click"
-              id="button-addon2"
-              >Add</button>
-        </div>
+            hx-swap="beforeend"
+            hx-target="#{{ bodypartSelect }}"
+            hx-get="/addexcercise/{{ bodypartSelect }}"
+            hx-include="previous [name=excerciseName]"
+            hx-params="excerciseName"
+            type="button"
+            hx-trigger="click"
+            id="button-{{ bodypartSelect }}"
+            >Add</button>
+          </div>
+        </form>
+        
       </div>
     </div>
   </div>

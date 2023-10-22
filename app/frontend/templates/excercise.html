@@ -1,17 +1,21 @@
-<div class="mx-auto" id="fullExcercises">
-  <div class="input-group mb-3" id="{{ excerciseName }}">
+<div class="mx-auto my-2" id="fullExcercises">
+  <div class="input-group mb-3" id="{{ bodypartSelect }}-{{ excerciseName }}">
     <div class="form-control" id="excerciseContainer" style="background-color: whitesmoke;" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"> {{ excerciseName }} </div>
-    <button type="button" class="btn btn-warning" id="remove" onclick="del('{{ excerciseName }}')">Edit</button>
-    <button type="button" class="btn btn-danger" id="remove" onclick="del('{{ excerciseName }}')">Del</button>
+    <button type="button" class="btn btn-warning edit"  onclick="edit('{{ bodypartSelect }}-{{ excerciseName }}', '{{ excerciseName }}')">Edit</button>
+    <button type="button" 
+      class="btn btn-danger remove {{ bodypartSelect }}-{{ excerciseName }}" 
+      onclick="del('{{ bodypartSelect }}-{{ excerciseName }}', '{{ excerciseName }}')"
+      >Del</button>
+
   </div>
-  <div id="series{{ bodypartSelect }}{{excerciseName}}"></div>
+  <div class="series"></div>
   <div class="text-center" style="width: 100%;">
     <div class="btn-group" role="group" id="rangeContainer">
       <button type="button" class="btn btn-success"
         id="remove"
         hx-get="/addseries/{{ bodypartSelect }}/{{ excerciseName }}"
         hx-swap="beforeend"
-        hx-target="#series{{ bodypartSelect }}{{ excerciseName }}"
+        hx-target="previous .series"
         >+</button>
 
     </div>
@@ -23,12 +27,54 @@
 {% block script %}
 
 <script>
-    function del(id) {
-        const btn = document.querySelector(`[id="${id}"]`)
- 
-        btn.parentElement.remove()
+
+  function del(id, ex) {
+    const removebtn = document.querySelector(`[class="${id}"]`)
+    if (confirm(`Are you sure you want to delete: ${id}?`) == true) {
+      fetch(`/deleteexercise/${ex}`, { method: "DELETE" })
+          .then((response) => {
+              const elementToRemove = document.querySelector(`[id="${id}"]`)
+              elementToRemove.parentElement.remove()
+            })
+            .catch((error) => console.log(error));
+          } 
+    };
+
+
+  function edit(id, ex) {
+    console.log("edit function called")
+  
+
+          const elementToEdit = document.querySelector(`[id="${id}"]`);
+          const text = elementToEdit.firstElementChild.innerHTML;
+          const el = elementToEdit.firstElementChild
+          const editBtn = elementToEdit.children[1]
+          editBtn.innerHTML = "OK"
+
+          el.setAttribute("contenteditable", "True");
+          el.style.borderColor = "yellow";
+          editBtn.removeAttribute("onclick")
+          editBtn.setAttribute("onclick", "confirmedit('{{ bodypartSelect }}-{{ excerciseName }}', '{{ bodypartSelect }}', '{{ excerciseName }}')" )
 
     }
+
+  function confirmedit(id, bp, ex) {
+    console.log("confirm function called")
+    fetch(`/edit/${bp}/${ex}`, { method: "PUT" })
+          .then((response) => {
+            const elementToEdit = document.querySelector(`[id="${id}"]`);
+            const text = elementToEdit.firstElementChild.innerHTML;
+            const el = elementToEdit.firstElementChild
+            const editBtn = elementToEdit.children[1]
+            editBtn.innerHTML = "Edit"
+
+            console.log(text);
+            el.style.borderColor = "";
+            el.setAttribute("contenteditable", "false");
+            editBtn.removeAttribute("onclick")
+            editBtn.setAttribute("onclick", "edit('{{ bodypartSelect }}-{{ excerciseName }}', '{{ excerciseName }}')" )
+             
+          })
+  }
 </script>
   {% endblock %}
-

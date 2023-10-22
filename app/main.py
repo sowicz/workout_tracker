@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from typing import Union
 
 
+
 app = FastAPI()
 templates = Jinja2Templates(directory="./frontend/templates/")
 
@@ -114,7 +115,6 @@ async def tracking(request: Request, bodypartSelect: str):
 
 @app.get("/addexcercise/{bodypartSelect}", response_class=HTMLResponse)
 async def addexcercise(request: Request, excerciseName: str, bodypartSelect: str):
-
     #check if excercise exist in workout - to prevent adding the same excercise
     exist = False
     for part, ex in workout.workout_data.items():
@@ -132,17 +132,10 @@ async def addexcercise(request: Request, excerciseName: str, bodypartSelect: str
         print(f'Exercise exist: {ex_name}')
     else:
         workout.add_exercise(bodypartSelect, excerciseName)
-
+        print(workout.workout_data)
         context = {"request": request, "excerciseName": excerciseName, "bodypartSelect": bodypartSelect}
         return templates.TemplateResponse("excercise.html", context)
 
-
-    # workout.add_exercise(bodypartSelect, excerciseName)
-    # print(workout.get_data())
-
-    # context = {"request": request, "excerciseName": excerciseName, "bodypartSelect": bodypartSelect}
-    # return templates.TemplateResponse("excercise.html", context)
-  
 
 
 
@@ -155,5 +148,32 @@ async def addexcercise(request: Request, bodypartSelect: str, excerciseName: str
     print(workout.get_data())
     # print(workout.workout_data)
 
-    context = {"request": request, "series": workout.series_num}
+    context = {"request": request, "series": workout.series_num, "excerciseName": excerciseName}
     return templates.TemplateResponse("series.html", context)
+
+
+
+
+@app.delete("/deleteexercise/{excerciseName}", status_code=200)
+async def delete_exercise(excerciseName: str):
+    print(excerciseName)
+    for part, ex in workout.workout_data.items():
+        for ex in ex:
+            if ex['exerciseName'] == excerciseName:
+                del ex['exerciseName']
+                del ex['sets']
+    workout.workout_data = {body_part: [exercise for exercise in exercises if exercise] for body_part, exercises in workout.workout_data.items()}
+    print(workout.workout_data)
+    context = {"excerciseName": excerciseName}
+    return context
+
+
+
+@app.put("/edit/{bodypartSelect}/{excerciseName}",  status_code=200)
+async def edit(excerciseName: str, bodypartSelect: str):
+    print(bodypartSelect+" "+ excerciseName)
+
+
+    
+    context = {"excerciseName": excerciseName, "bodypartSelect": bodypartSelect}
+    return context
