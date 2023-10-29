@@ -1,21 +1,23 @@
 <div class="mx-auto my-2" id="fullExcercises">
-  <div class="input-group mb-3" id="{{ bodypartSelect }}-{{ excerciseName }}">
+  <div class="input-group mb-3" id="{{bodypartSelect}}-{{excerciseName}}">
     <div class="form-control" id="excerciseContainer" style="background-color: whitesmoke;" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"> {{ excerciseName }} </div>
-    <button type="button" class="btn btn-warning edit"  onclick="edit('{{ bodypartSelect }}-{{ excerciseName }}', '{{ excerciseName }}')">Edit</button>
+    <button type="button" class="btn btn-warning edit"  onclick="edit('{{bodypartSelect }}-{{excerciseName}}','{{bodypartSelect }}','{{excerciseName}}')">Edit</button>
     <button type="button" 
       class="btn btn-danger remove {{ bodypartSelect }}-{{ excerciseName }}" 
-      onclick="del('{{ bodypartSelect }}-{{ excerciseName }}', '{{ excerciseName }}')"
+      onclick="del('{{bodypartSelect}}-{{excerciseName}}','{{excerciseName}}')"
       >Del</button>
 
   </div>
-  <div class="series"></div>
+  <div class="series" id="series-{{excerciseName}}"></div>
   <div class="text-center" style="width: 100%;">
-    <div class="btn-group" role="group" id="rangeContainer">
+    <div class="btn-group" role="group" id="range-{{excerciseName}}">
       <button type="button" class="btn btn-success"
-        id="remove"
+        id="add"
         hx-get="/addseries/{{ bodypartSelect }}/{{ excerciseName }}"
         hx-swap="beforeend"
         hx-target="previous .series"
+
+       
         >+</button>
 
     </div>
@@ -27,7 +29,12 @@
 {% block script %}
 
 <script>
-
+  //  onclick="seriesAdd('{{bodypartSelect }}','{{excerciseName}}')"
+  function seriesAdd(bp, ex) {
+    seriesdiv = htmx.find(`.series`)
+    htmx.ajax('GET', `/addseries/${bp}/${ex}`, {target: seriesdiv, swap:'beforeend'})
+  }
+  
   function del(id, ex) {
     const removebtn = document.querySelector(`[class="${id}"]`)
     if (confirm(`Are you sure you want to delete: ${id}?`) == true) {
@@ -38,43 +45,89 @@
             })
             .catch((error) => console.log(error));
           } 
-    };
+  };
 
-
-  function edit(id, ex) {
-    console.log("edit function called")
+  // take id to edit input value (exercise name)
+  function edit(id, bp, ex) {
+      console.log("edit function called")
   
+      const elementToEdit = document.querySelector(`[id="${id}"]`);
+      const el = elementToEdit.firstElementChild
+      const editBtn = elementToEdit.children[1]
+      editBtn.innerHTML = "OK"
 
-          const elementToEdit = document.querySelector(`[id="${id}"]`);
-          const text = elementToEdit.firstElementChild.innerHTML;
-          const el = elementToEdit.firstElementChild
-          const editBtn = elementToEdit.children[1]
-          editBtn.innerHTML = "OK"
 
-          el.setAttribute("contenteditable", "True");
-          el.style.borderColor = "yellow";
-          editBtn.removeAttribute("onclick")
-          editBtn.setAttribute("onclick", "confirmedit('{{ bodypartSelect }}-{{ excerciseName }}', '{{ bodypartSelect }}', '{{ excerciseName }}')" )
+      el.setAttribute("contenteditable", "True");
+      el.style.borderColor = "yellow";
+      editBtn.removeAttribute("onclick")
+      editBtn.setAttribute("onclick", `confirmedit('${id}','${bp}','${ex}')` )
 
-    }
+  };
 
   function confirmedit(id, bp, ex) {
     console.log("confirm function called")
-    fetch(`/edit/${bp}/${ex}`, { method: "PUT" })
-          .then((response) => {
-            const elementToEdit = document.querySelector(`[id="${id}"]`);
-            const text = elementToEdit.firstElementChild.innerHTML;
-            const el = elementToEdit.firstElementChild
-            const editBtn = elementToEdit.children[1]
-            editBtn.innerHTML = "Edit"
+    const elementToEdit = document.querySelector(`[id="${id}"]`);
 
-            console.log(text);
-            el.style.borderColor = "";
-            el.setAttribute("contenteditable", "false");
-            editBtn.removeAttribute("onclick")
-            editBtn.setAttribute("onclick", "edit('{{ bodypartSelect }}-{{ excerciseName }}', '{{ excerciseName }}')" )
-             
-          })
+    let exNew = elementToEdit.firstElementChild.innerHTML;
+    exNew = exNew.trim();
+
+    // check if any input has the same name as edited input
+    // to prevent the same exercise name 
+    let exToCheck = document.querySelectorAll("div#excerciseContainer")
+
+    let ar = []
+    let count = 0
+    let exExist = false
+
+    for (let i=0; i< exToCheck.length; i++){
+      ar.push(exToCheck[i].innerHTML.trim())
+      if (exNew == exToCheck[i].innerHTML.trim()) {
+        count++;
+        if (count == 2) {
+          console.log("wartość wystepuje 2 razy")
+          const el = elementToEdit.firstElementChild
+          el.style.borderColor = "red";
+          exExist = true
+        }
+
+      }
+    }
+    if (!exExist) {
+        // fetching data to edit exercise name
+        const el = elementToEdit.firstElementChild
+        const editBtn = elementToEdit.children[1]
+        const delBtn = elementToEdit.children[2]
+        const addSeriesBtn = document.querySelector(`[id="range-${ex}"]`).lastElementChild
+        const rangediv = document.querySelector(`[id="range-${ex}"]`)
+
+        fetch(`/edit/${bp}/${ex}/${exNew}`, { method: "PUT" })
+        .then((response) => {
+        
+        editBtn.innerHTML = "Edit"
+
+        el.style.borderColor = "";
+        elementToEdit.setAttribute("id",`${bp}-${exNew}`)
+        
+        el.setAttribute("contenteditable", "false");
+        editBtn.removeAttribute("onclick")
+        editBtn.setAttribute("onclick", `edit('${bp}-${exNew}','${bp}','${exNew}')` )
+        delBtn.setAttribute("onclick", `del('${bp}-${exNew}','${exNew}')`)
+        // addSeriesBtn.setAttribute("onclick", `seriesAdd('${bp}','${exNew}')`)
+        addSeriesBtn.setAttribute("hx-get", `/addseries/${bp}/${exNew}`)
+        rangediv.setAttribute("id", `range-${exNew}`)
+        htmx.process(addSeriesBtn)
+        
+        
+        // ważne bo działa - dodać ponizsza funkcję do przycisku 
+        
+        })
+    }
+
+
+
   }
+    
+    
+
 </script>
-  {% endblock %}
+{% endblock %}

@@ -39,29 +39,34 @@ class Workout:
             self.workout_data[body_part] = []
 
         existing_part = self.workout_data.get(body_part)
+        # # sprawdzic czy jak usune ponizszy warunek zadziala prawidlowo - bo dodaje tylko inputy w js
+        # if existing_part is not None:
+        #     existing_exercise = next((ex for ex in existing_part if ex["exerciseName"] == exercise_name), None)
+
+        # if existing_exercise is None:
+        #     existing_part.append({"exerciseName": exercise_name, "sets": []})
 
         if existing_part is not None:
-            existing_exercise = next((ex for ex in existing_part if ex["exerciseName"] == exercise_name), None)
-
-        if existing_exercise is None:
-            existing_part.append({"exerciseName": exercise_name, "sets": {}})
+            existing_part.append({"exerciseName": exercise_name, "sets": []})
 
 
-
-
-
-
-    def add_set(self, body_part, exercise_name, repetitions):
+    def add_set(self, body_part, exercise_name, repetitions, weight):
         existing_part = self.workout_data.get(body_part)
         if existing_part is not None:
             existing_exercise = next((ex for ex in existing_part if ex["exerciseName"] == exercise_name), None)
             if existing_exercise is not None:
+                if "sets" not in existing_exercise:
+                    existing_exercise["sets"] = []
+
                 series_count = len(existing_exercise["sets"]) + 1
                 self.series_num =series_count
-                existing_exercise["sets"][series_count] = repetitions
+                existing_exercise["sets"].append({"set": series_count, "repetitions": repetitions, "weight": weight})
+            else:
+                self.add_exercise(body_part, exercise_name)
+                self.add_set(body_part, exercise_name, repetitions, weight)
         else:
             self.add_exercise(body_part, exercise_name)
-            self.add_set(body_part, exercise_name, repetitions)
+            self.add_set(body_part, exercise_name, repetitions, weight)
 
 
     def get_data(self):
@@ -115,21 +120,20 @@ async def tracking(request: Request, bodypartSelect: str):
 
 @app.get("/addexcercise/{bodypartSelect}", response_class=HTMLResponse)
 async def addexcercise(request: Request, excerciseName: str, bodypartSelect: str):
+
     #check if excercise exist in workout - to prevent adding the same excercise
-    exist = False
-    for part, ex in workout.workout_data.items():
-        if part == bodypartSelect:
-            for ex in ex:
-                if 'exerciseName' in ex:
-                    ex_name = ex['exerciseName']
-                    print(ex_name)
-                    if ex_name == excerciseName:
-                        exist = True
-                        
-                    else:
-                        exist = False
-    if exist == True:
-        print(f'Exercise exist: {ex_name}')
+    def exercise_exists(data, body_part, exercise_name):
+        if body_part in data:
+            existing_part = data[body_part]
+            for exercise in existing_part:
+                if exercise['exerciseName'] == exercise_name:
+                    return True
+        return False
+    
+    # if exercise exist in specific bodypart -- don't add
+    # if not exist - add new exercise
+    if exercise_exists(workout.workout_data, bodypartSelect, excerciseName):
+        print(f'Exercise exist: {excerciseName}')
     else:
         workout.add_exercise(bodypartSelect, excerciseName)
         print(workout.workout_data)
@@ -143,22 +147,20 @@ async def addexcercise(request: Request, excerciseName: str, bodypartSelect: str
 async def addexcercise(request: Request, bodypartSelect: str, excerciseName: str):
 
     num = 0
-    
-    workout.add_set(bodypartSelect, excerciseName, num)
-    print(workout.get_data())
-    # print(workout.workout_data)
+    weight = 0
+    workout.add_set(bodypartSelect, excerciseName, num, weight)
+    print(workout.workout_data)
 
     context = {"request": request, "series": workout.series_num, "excerciseName": excerciseName}
     return templates.TemplateResponse("series.html", context)
 
 
 
-
 @app.delete("/deleteexercise/{excerciseName}", status_code=200)
 async def delete_exercise(excerciseName: str):
     print(excerciseName)
-    for part, ex in workout.workout_data.items():
-        for ex in ex:
+    for part, exc in workout.workout_data.items():
+        for ex in exc:
             if ex['exerciseName'] == excerciseName:
                 del ex['exerciseName']
                 del ex['sets']
@@ -169,11 +171,42 @@ async def delete_exercise(excerciseName: str):
 
 
 
-@app.put("/edit/{bodypartSelect}/{excerciseName}",  status_code=200)
-async def edit(excerciseName: str, bodypartSelect: str):
-    print(bodypartSelect+" "+ excerciseName)
+@app.put("/edit/{bodypartSelect}/{excerciseName}/{exNew}",  status_code=200)
+async def edit(excerciseName: str, bodypartSelect: str, exNew: str):
+    print(bodypartSelect+" "+ excerciseName+" "+ exNew)
 
 
+    for part, exercises in workout.workout_data.items():
+        if part == bodypartSelect:
+            for ex in exercises:
+                if ex['exerciseName'] == excerciseName:
+                    new_exercise = {
+                    'exerciseName': exNew,
+                    'sets': ex['sets']
+                    }
+                    exercises.append(new_exercise)
+                    exercises.remove(ex)
+                    # ex['exerciseName'] = exNew
+
+    print(workout.workout_data)
+    context = {"exNew": exNew}
+    return context
+
+
+@app.delete("/deleteseries/{bodypartSelect}/{excerciseName}/{series}")
+def delete_series(excerciseName: str, bodypartSelect: str, series: int):
     
-    context = {"excerciseName": excerciseName, "bodypartSelect": bodypartSelect}
+    for exercise in workout.workout_data['Chest']:
+    sets = exercise['sets']
+    updated_sets = [s for s in sets if s['set'] != set_to_remove]
+    exercise['sets'] = updated_sets
+
+    # Zaktualizuj numery zbiorów, aby były po kolei
+    for i, exercise in enumerate(data['Chest']):
+    sets = exercise['sets']
+    for j, set in enumerate(sets):
+        set['set'] = j + 1
+
+
+    context = {"series": series}
     return context

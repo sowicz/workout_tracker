@@ -1,9 +1,22 @@
 <div class="text-center" style="width: 100%;">
     <div class="input-group input-group-sm mb-3 mx-auto" style="width: 80%;">
+
         <span class="input-group-text" >Series [{{ series }}]</span>
-        <input type="number" min="0" max="40" class="form-control" aria-label="Sizing example input"  id="{{ excerciseName }}-{{ series }}" aria-describedby="inputGroup-sizing-sm">
+        
+        <input type="number" min="0" max="40" class="form-control"
+          aria-label="Sizing example input"
+          name="seriesNum" 
+          id="{{ excerciseName }}-series-{{ series }}" 
+          aria-describedby="inputGroup-sizing-sm">
+
         <span class="input-group-text" >Kg</span>
-        <input type="number" min="0" max="200" class="form-control" aria-label="Sizing example input"  id="{{ excerciseName }}-{{ kg }}" aria-describedby="inputGroup-sizing-sm">
+
+        <input type="number" min="0" max="200" class="form-control" 
+          aria-label="Sizing example input" 
+          name="weightNum" 
+          id="{{ excerciseName }}-weight-{{ series }}" 
+          aria-describedby="inputGroup-sizing-sm">
+
         <button type="button " class="btn btn-success" id="acceptSeries">OK</button>
         <button type="button " class="btn btn-dark" id="removeSeries">X</button>
       </div>
