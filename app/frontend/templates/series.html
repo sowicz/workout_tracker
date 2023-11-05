@@ -1,23 +1,68 @@
-<div class="text-center" style="width: 100%;">
-    <div class="input-group input-group-sm mb-3 mx-auto" style="width: 80%;">
+<div class="text-center" id="{{ excerciseName }}-series-{{ series }}" style="width: 100%;">
 
-        <span class="input-group-text" >Series [{{ series }}]</span>
-        
+   
+
+      <form class="input-group input-group-sm mb-3 mx-auto" style="width: 80%;">
+
+        <span class="input-group-text set" >Series [{{ series }}]</span>
         <input type="number" min="0" max="40" class="form-control"
           aria-label="Sizing example input"
-          name="seriesNum" 
-          id="{{ excerciseName }}-series-{{ series }}" 
+          name="seriesNum"
+          value="0"
           aria-describedby="inputGroup-sizing-sm">
 
         <span class="input-group-text" >Kg</span>
 
-        <input type="number" min="0" max="200" class="form-control" 
+        <input type="text" class="form-control" 
           aria-label="Sizing example input" 
-          name="weightNum" 
-          id="{{ excerciseName }}-weight-{{ series }}" 
+          name="weightNum"
           aria-describedby="inputGroup-sizing-sm">
 
-        <button type="button " class="btn btn-success" id="acceptSeries">OK</button>
-        <button type="button " class="btn btn-dark" id="removeSeries">X</button>
-      </div>
+        <button type="button" 
+          class="btn btn-success" 
+          id="acceptSeries"
+          hx-post="/addseriesdata/{{excerciseName}}/{{series}}"
+          hx-include="[name=seriesNum], [name=weightNum] "
+          hx-swap="none"
+          >OK</button>
+
+        <button type="button" 
+          class="btn btn-dark" 
+          id="removeSeries"
+          onclick="delSeries('{{ excerciseName }}-series-{{ series }}', '{{bodypartSelect}}', '{{excerciseName}}','{{series}}')"
+          >X</button>
+      </form>
+  
 </div>
+
+
+{% block script %}
+<script>
+  function delSeries(id, bp, ex, sr) {
+    const delDiv = document.querySelector((`[id="${id}"]`))
+    let seriesElements = document.querySelector((`[id="series-${ex}"]`))
+
+    fetch(`/deleteseries/${bp}/${ex}/${sr}`, { method: "DELETE" })
+          .then((response) => {
+
+              delDiv.remove()
+              let sElement = seriesElements.querySelectorAll(".set")
+
+              // change innerhtml for all elements
+              sElement.forEach( (el, index)=> {
+                el.innerHTML = `Series [${index+1}]`
+                el.parentElement.parentElement.id = `${ex}-series-${index+1}`
+                el.parentElement.lastElementChild.setAttribute("onclick",`delSeries('${ex}-series-${index+1}', '${bp}','${ex}','${index+1}')`)
+                el.parentElement[2].setAttribute("hx-post", `/addseriesdata/{{excerciseName}}/${index+1}`)
+
+                htmx.process(el.parentElement[2])
+              })
+
+              
+          })
+          .catch((error) => console.log(error));
+          }
+
+
+</script>
+{% endblock %}

@@ -4,7 +4,7 @@
     <button type="button" class="btn btn-warning edit"  onclick="edit('{{bodypartSelect }}-{{excerciseName}}','{{bodypartSelect }}','{{excerciseName}}')">Edit</button>
     <button type="button" 
       class="btn btn-danger remove {{ bodypartSelect }}-{{ excerciseName }}" 
-      onclick="del('{{bodypartSelect}}-{{excerciseName}}','{{excerciseName}}')"
+      onclick="delExercise('{{bodypartSelect}}-{{excerciseName}}','{{excerciseName}}')"
       >Del</button>
 
   </div>
@@ -16,8 +16,6 @@
         hx-get="/addseries/{{ bodypartSelect }}/{{ excerciseName }}"
         hx-swap="beforeend"
         hx-target="previous .series"
-
-       
         >+</button>
 
     </div>
@@ -35,7 +33,7 @@
     htmx.ajax('GET', `/addseries/${bp}/${ex}`, {target: seriesdiv, swap:'beforeend'})
   }
   
-  function del(id, ex) {
+  function delExercise(id, ex) {
     const removebtn = document.querySelector(`[class="${id}"]`)
     if (confirm(`Are you sure you want to delete: ${id}?`) == true) {
       fetch(`/deleteexercise/${ex}`, { method: "DELETE" })

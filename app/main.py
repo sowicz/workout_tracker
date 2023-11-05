@@ -1,11 +1,14 @@
-from fastapi import FastAPI, Request, Header, Form, Body
+from dataclasses import dataclass
+from multiprocessing import context
+from unittest import result
+from fastapi import FastAPI, Request, Header, Form, Body, Response
 from typing import Annotated
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import datetime
 from pydantic import BaseModel
-from typing import Union
+
 
 
 
@@ -151,7 +154,7 @@ async def addexcercise(request: Request, bodypartSelect: str, excerciseName: str
     workout.add_set(bodypartSelect, excerciseName, num, weight)
     print(workout.workout_data)
 
-    context = {"request": request, "series": workout.series_num, "excerciseName": excerciseName}
+    context = {"request": request, "series": workout.series_num, "excerciseName": excerciseName, "bodypartSelect": bodypartSelect}
     return templates.TemplateResponse("series.html", context)
 
 
@@ -193,20 +196,36 @@ async def edit(excerciseName: str, bodypartSelect: str, exNew: str):
     return context
 
 
+
+
 @app.delete("/deleteseries/{bodypartSelect}/{excerciseName}/{series}")
 def delete_series(excerciseName: str, bodypartSelect: str, series: int):
     
-    for exercise in workout.workout_data['Chest']:
-    sets = exercise['sets']
-    updated_sets = [s for s in sets if s['set'] != set_to_remove]
-    exercise['sets'] = updated_sets
+    for exercise in workout.workout_data[bodypartSelect]:
+        if exercise['exerciseName'] == excerciseName:
+            sets = exercise['sets']
+            updated_sets = [s for s in sets if s['set'] != series]
+            exercise['sets'] = updated_sets
 
     # Zaktualizuj numery zbiorów, aby były po kolei
-    for i, exercise in enumerate(data['Chest']):
-    sets = exercise['sets']
-    for j, set in enumerate(sets):
-        set['set'] = j + 1
-
-
+    for exercise in workout.workout_data[bodypartSelect]:
+        sets = exercise['sets']
+        for j, set in enumerate(sets):
+            set['set'] = j + 1
+        
+    print(workout.workout_data)
     context = {"series": series}
     return context
+
+
+
+
+@app.post("/addseriesdata/{excerciseName}/{series}")
+def add_series_data(excerciseName: str, series: int, seriesNum: Annotated[str, Form(...)] = None, weightNum: Annotated[str, Form(...)] = None):
+
+    print(excerciseName)
+    print(f"series: {series}")
+    print(f"series qty: {seriesNum}")
+    print(f"weight: {weightNum}")
+
+    return "OK"
