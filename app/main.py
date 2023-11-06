@@ -220,12 +220,26 @@ def delete_series(excerciseName: str, bodypartSelect: str, series: int):
 
 
 
-@app.post("/addseriesdata/{excerciseName}/{series}")
-def add_series_data(excerciseName: str, series: int, seriesNum: Annotated[str, Form(...)] = None, weightNum: Annotated[str, Form(...)] = None):
+@app.post("/addseriesdata/{bodypartSelect}/{excerciseName}/{series}")
+def add_series_data(bodypartSelect: str ,excerciseName: str, series: int, seriesNum: Annotated[str, Form(...)] = None, weightNum: Annotated[str, Form(...)] = None):
 
+    print(bodypartSelect)
     print(excerciseName)
     print(f"series: {series}")
     print(f"series qty: {seriesNum}")
     print(f"weight: {weightNum}")
+
+
+    for exercise in workout.workout_data.get(bodypartSelect, []):
+        if exercise['exerciseName'] == excerciseName:
+            # Znajdź odpowiedni zestaw w zestawach ćwiczeń
+            for exercise_set in exercise['sets']:
+                if exercise_set['set'] == series:
+                    exercise_set['weight'] = weightNum
+                    exercise_set['repetitions'] = seriesNum
+                    break  # Przerwij pętlę, gdy znaleziono odpowiedni zestaw
+            break  # Przerwij pętlę, gdy znaleziono odpowiednie ćwiczeni
+    
+    print(workout.workout_data)
 
     return "OK"

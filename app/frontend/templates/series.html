@@ -1,4 +1,4 @@
-<div class="text-center" id="{{ excerciseName }}-series-{{ series }}" style="width: 100%;">
+<div class="text-center" id="{{bodypartSelect}}-{{ excerciseName }}-series-{{ series }}" style="width: 100%;">
 
    
 
@@ -21,7 +21,7 @@
         <button type="button" 
           class="btn btn-success" 
           id="acceptSeries"
-          hx-post="/addseriesdata/{{excerciseName}}/{{series}}"
+          hx-post="/addseriesdata/{{bodypartSelect}}/{{excerciseName}}/{{series}}"
           hx-include="[name=seriesNum], [name=weightNum] "
           hx-swap="none"
           >OK</button>
@@ -29,40 +29,8 @@
         <button type="button" 
           class="btn btn-dark" 
           id="removeSeries"
-          onclick="delSeries('{{ excerciseName }}-series-{{ series }}', '{{bodypartSelect}}', '{{excerciseName}}','{{series}}')"
+          onclick="delSeries('{{bodypartSelect}}-{{ excerciseName }}-series-{{ series }}', '{{bodypartSelect}}', '{{excerciseName}}','{{series}}')"
           >X</button>
       </form>
   
 </div>
-
-
-{% block script %}
-<script>
-  function delSeries(id, bp, ex, sr) {
-    const delDiv = document.querySelector((`[id="${id}"]`))
-    let seriesElements = document.querySelector((`[id="series-${ex}"]`))
-
-    fetch(`/deleteseries/${bp}/${ex}/${sr}`, { method: "DELETE" })
-          .then((response) => {
-
-              delDiv.remove()
-              let sElement = seriesElements.querySelectorAll(".set")
-
-              // change innerhtml for all elements
-              sElement.forEach( (el, index)=> {
-                el.innerHTML = `Series [${index+1}]`
-                el.parentElement.parentElement.id = `${ex}-series-${index+1}`
-                el.parentElement.lastElementChild.setAttribute("onclick",`delSeries('${ex}-series-${index+1}', '${bp}','${ex}','${index+1}')`)
-                el.parentElement[2].setAttribute("hx-post", `/addseriesdata/{{excerciseName}}/${index+1}`)
-
-                htmx.process(el.parentElement[2])
-              })
-
-              
-          })
-          .catch((error) => console.log(error));
-          }
-
-
-</script>
-{% endblock %}
